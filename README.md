@@ -1,3 +1,7 @@
+# Creator
+
+This project was created for research purposes, which includes the following members: Ahnaf Bin Asraf, Iwrsiya Nawar and Syed Quafshat Taiyush Hamd
+
 # Adaptive Learning App with Emotion Tracking
 
 This repository contains a complete, privacy-first learning system designed to support diverse learning preferences. It includes a browser-based learning app, practice modules for addition and subtraction, emotion tracking, frustration analysis, and local analytics. The system adapts presentation (visual, auditory, kinesthetic) based on performance and affect.
@@ -140,5 +144,6 @@ Subtraction learning and practice following the same pattern as addition, with s
 
 ## License
 This project is provided for research and educational use. Add an explicit license file if you intend to distribute or use beyond personal/research contexts.
+
 
 
