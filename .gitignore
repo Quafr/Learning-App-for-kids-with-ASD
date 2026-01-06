@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# User Data (CSV logs and reports)
+learner_log*.csv
+addition_practice_log*.csv
+subtraction_practice_log*.csv
+frustration_report*.csv
+# preferred_modes.csv - keep template, ignore if it has data rows
+# Template: preferred_modes.csv.example
+inactivity_thresholds.json
+
+# Generated outputs
+outputs/
+*.png
+*.jpg
+*.jpeg
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.cache
+
+# Test files (if any)
+test_output/
+.pytest_cache/
+
+# Environment variables
+.env
+.env.local
