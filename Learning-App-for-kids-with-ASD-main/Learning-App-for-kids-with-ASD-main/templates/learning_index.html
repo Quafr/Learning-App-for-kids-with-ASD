@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⭐ Super Learning Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            background: #FFF7F2;
+            color: #2E2E2E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #2E2E2E;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6B6B6B;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2E2E2E;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #EAEAEA;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6C8EF3;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #6C8EF3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #4B6EE8;
+        }
+        button:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #FF6B6B;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .tip {
+            margin-top: 20px;
+            padding: 15px;
+            background: #F5F5F5;
+            border-radius: 8px;
+            color: #6B6B6B;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭐ Super Learning Quiz</h1>
+        <p class="subtitle">Let's learn in a fun way! Enter your Learner ID to get started. 🌈</p>
+        
+        <form id="startForm">
+            <div class="form-group">
+                <label for="learner_id">👤 Learner ID:</label>
+                <input type="text" id="learner_id" name="learner_id" required placeholder="Enter your Learner ID">
+            </div>
+            <button type="submit">Let's Start! 🚀</button>
+            <div id="error" class="error" style="display: none;"></div>
+        </form>
+        
+        <div class="tip">
+            💡 Tip: Ask a grown-up if you're not sure about your ID. 😊
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('startForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const learnerId = document.getElementById('learner_id').value.trim();
+            const errorDiv = document.getElementById('error');
+            const button = document.querySelector('button');
+            
+            if (!learnerId) {
+                errorDiv.textContent = 'Please enter your Learner ID';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            button.disabled = true;
+            button.textContent = 'Starting...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/start_learning', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ learner_id: learnerId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = `/learning_interface/${data.session_id}`;
+                } else {
+                    errorDiv.textContent = data.error || 'An error occurred';
+                    errorDiv.style.display = 'block';
+                    button.disabled = false;
+                    button.textContent = "Let's Start! 🚀";
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+                button.disabled = false;
+                button.textContent = "Let's Start! 🚀";
+            }
+        });
+    </script>
+</body>
+</html>
+
+

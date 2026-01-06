@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addition Kinesthetic Task 3</title>
+    <style>
+        body { font-family: Inter, Segoe UI, Roboto, Arial, Helvetica, sans-serif; background:#f6f9fc; margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; }
+        .wrapper { width: 720px; max-width: 95vw; background:#fff; border:2px solid #6C8EF3; border-radius:16px; padding:20px; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+        .title { font-weight:700; margin:0 0 6px 0; color:#2c3e50; font-size:20px; }
+        .instructions { margin:0 0 16px 0; color:#546e7a; font-size:16px; }
+        .board { display:flex; gap:16px; }
+        .column { flex:1; border:2px dashed #b0c4ff; border-radius:12px; background:#f2f6ff; min-height:260px; padding:12px; }
+        .column h3 { margin:6px 6px 12px 6px; color:#2c3e50; font-size:16px; }
+        .pool { display:flex; flex-wrap:wrap; gap:8px; }
+        .item { width:56px; height:56px; display:flex; align-items:center; justify-content:center; font-size:32px; background:#fff; border:2px solid #6C8EF3; border-radius:10px; cursor:grab; user-select:none; }
+        .item.dragging { opacity:0.7; }
+        .dropzone { display:flex; flex-wrap:wrap; gap:8px; min-height:200px; }
+        .success { display:none; margin-top:14px; padding:10px 12px; background:#e8f5e8; color:#2e7d32; border:2px solid #2e7d32; border-radius:10px; font-weight:700; }
+        .count-display { font-size:18px; font-weight:bold; color:#6C8EF3; margin-top:10px; }
+        .tap-area { width: 100%; height: 200px; border: 3px dashed #6C8EF3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #6C8EF3; cursor: pointer; margin: 20px 0; }
+        .tap-area.active { background: #e8f4f8; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h2 class="title">➕ Addition: Tap the screen 4 times. Now tap 2 more times</h2>
+        <p class="instructions">Tap the blue area below 4 times, then tap 2 more times. Count all your taps!</p>
+        <div class="tap-area" id="tapArea">
+            👆 Tap Here! 👆
+        </div>
+        <div class="count-display">Total Taps: <span id="count">0</span></div>
+        <div id="done" class="success" style="display:none">🎉 Great job! You tapped <span id="total">0</span> times total!</div>
+    </div>
+    <script>
+        let tapCount = 0;
+        const tapArea = document.getElementById('tapArea');
+        const countDisplay = document.getElementById('count');
+        const totalDisplay = document.getElementById('total');
+        const done = document.getElementById('done');
+
+        tapArea.addEventListener('click', function() {
+            tapCount++;
+            countDisplay.textContent = tapCount;
+            totalDisplay.textContent = tapCount;
+            tapArea.classList.add('active');
+            setTimeout(() => tapArea.classList.remove('active'), 100);
+            
+            if(tapCount >= 6){
+                done.style.display = 'block';
+                if(window.parent!==window){ 
+                    window.parent.postMessage('task_completed','*'); 
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addition Practice - Super Learning Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            background: #FFF7F2;
+            color: #2E2E2E;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        h1 {
+            font-size: 28px;
+            color: #2E2E2E;
+        }
+        .mode-badge {
+            background: #6C8EF3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .progress {
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #EAEAEA;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #72D7A7;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .question-container {
+            background: #F9F9F9;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+        .question-text {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .visual-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 36px;
+        }
+        .answer-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 14px;
+            font-size: 18px;
+            border: 2px solid #EAEAEA;
+            border-radius: 8px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6C8EF3;
+        }
+        button {
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #6C8EF3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #4B6EE8;
+        }
+        button:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6B6B6B;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .message.success {
+            background: #D4EDDA;
+            color: #155724;
+        }
+        .message.error {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+        .camera-loading {
+            text-align: center;
+            padding: 20px;
+            background: #F0F0F0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>➕ Addition Practice</h1>
+            <div class="mode-badge" id="modeBadge">Mode: {{ mode.capitalize() }}</div>
+        </div>
+        
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+            </div>
+        </div>
+        
+        <div id="message" class="message" style="display: none;"></div>
+        
+        <div id="cameraLoading" class="camera-loading" style="display: none;">
+            🎥 Starting camera... Please wait
+        </div>
+        
+        <div class="question-container">
+            <div id="questionContent">
+                <div class="loading">Loading question...</div>
+            </div>
+        </div>
+        
+        <div class="answer-section">
+            <input type="text" id="answerInput" placeholder="Type your answer here..." disabled>
+            <button id="submitBtn" disabled>✅ Submit</button>
+            <button id="skipBtn" onclick="skipQuestion()">⏭️ Skip</button>
+        </div>
+    </div>
+
+    <script>
+        const sessionId = '{{ session_id }}';
+        let currentQuestion = null;
+        let cameraReady = false;
+        
+        // Load question when page loads
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadQuestion();
+            checkCameraReady();
+        });
+        
+        async function loadQuestion() {
+            try {
+                const response = await fetch(`/get_practice_question/${sessionId}`);
+                const data = await response.json();
+                
+                if (data.completed) {
+                    showMessage('Fantastic! You completed all questions! 🌟', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                    return;
+                }
+                
+                currentQuestion = data.question;
+                document.getElementById('modeBadge').textContent = `Mode: ${data.mode.charAt(0).toUpperCase() + data.mode.slice(1)}`;
+                updateProgress(data.question_index + 1, data.total_questions);
+                
+                if (data.camera_initializing) {
+                    document.getElementById('cameraLoading').style.display = 'block';
+                }
+                
+                displayQuestion(data.question, data.mode);
+            } catch (error) {
+                showMessage('Error loading question. Please refresh the page.', 'error');
+            }
+        }
+        
+        function displayQuestion(question, mode) {
+            const content = document.getElementById('questionContent');
+            const questionText = question.question || '';
+            
+            if (mode === 'auditory') {
+                content.innerHTML = `
+                    <div class="question-text">🎵 ${questionText}</div>
+                    <div class="audio-text">Click to hear: ${question.audio_text || questionText}</div>
+                `;
+                // Use browser text-to-speech
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(question.audio_text || questionText);
+                    speechSynthesis.speak(utterance);
+                }
+            } else if (mode === 'kinesthetic') {
+                content.innerHTML = `
+                    <div class="question-text">🖱️ ${question.task || questionText}</div>
+                    <p style="margin: 15px 0; color: #6C8EF3; font-weight: bold;">Complete the interactive task below, then type your answer!</p>
+                    <iframe id="kinestheticFrame" src="/kinesthetic/${question.html_file || ''}" style="width: 100%; height: 500px; border: 2px solid #6C8EF3; border-radius: 8px;"></iframe>
+                `;
+                // Listen for task completion message from iframe
+                window.addEventListener('message', function(event) {
+                    if (event.data === 'task_completed') {
+                        console.log('Kinesthetic task completed!');
+                    }
+                });
+            } else {
+                let html = `<div class="question-text">🧠 ${questionText}</div>`;
+                if (question.visual_elements && question.visual_elements.length > 0) {
+                    html += '<div class="visual-elements">' + 
+                        question.visual_elements.map(el => `<span>${el.trim()}</span>`).join('') + 
+                        '</div>';
+                }
+                content.innerHTML = html;
+            }
+        }
+        
+        async function checkCameraReady() {
+            const maxAttempts = 50;
+            let attempts = 0;
+            
+            const check = async () => {
+                try {
+                    const response = await fetch('/check_practice_camera_ready');
+                    const data = await response.json();
+                    
+                    if (data.ready) {
+                        cameraReady = true;
+                        document.getElementById('cameraLoading').style.display = 'none';
+                        document.getElementById('answerInput').disabled = false;
+                        document.getElementById('submitBtn').disabled = false;
+                        
+                        // Notify server that camera is ready
+                        await fetch(`/practice_camera_ready/${sessionId}`, { method: 'POST' });
+                    } else if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(check, 200);
+                    } else {
+                        // Timeout - enable anyway
+                        document.getElementById('cameraLoading').style.display = 'none';
+                        document.getElementById('answerInput').disabled = false;
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error checking camera:', error);
+                    if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(check, 200);
+                    }
+                }
+            };
+            
+            check();
+        }
+        
+        document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+        document.getElementById('answerInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+        
+        async function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            const button = document.getElementById('submitBtn');
+            
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`/submit_practice_answer/${sessionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ answer: answer || '' })
+                });
+                
+                const data = await response.json();
+                
+                if (data.completed) {
+                    showMessage(`All done! Great job! 🌟 Score: ${data.total_score}/${data.total_score}`, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                } else {
+                    // Load next question
+                    document.getElementById('answerInput').value = '';
+                    await loadQuestion();
+                    checkCameraReady();
+                }
+            } catch (error) {
+                showMessage('Error submitting answer. Please try again.', 'error');
+                button.disabled = false;
+            }
+        }
+        
+        function skipQuestion() {
+            document.getElementById('answerInput').value = 'SKIP';
+            submitAnswer();
+        }
+        
+        function updateProgress(current, total) {
+            const percentage = Math.round((current / total) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressFill').textContent = `Question ${current} of ${total}`;
+        }
+        
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = `message ${type}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

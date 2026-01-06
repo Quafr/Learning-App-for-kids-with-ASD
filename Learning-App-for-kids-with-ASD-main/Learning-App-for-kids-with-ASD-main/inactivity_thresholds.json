@@ -1,0 +1,8 @@
+{
+  "1": {
+    "test_number": 1,
+    "avg_response_time_sec": 3.168,
+    "inactivity_threshold_sec": 123.168,
+    "updated_at": "2026-01-06T04:31:15.944854"
+  }
+}

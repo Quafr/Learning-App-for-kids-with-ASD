@@ -1,0 +1,25 @@
+# Core Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+Jinja2==3.1.2
+
+# Data Processing
+pandas==2.1.1
+numpy>=1.24.0
+
+# Computer Vision & Emotion Tracking
+opencv-python==4.8.1.78
+deepface==0.0.79
+mediapipe==0.10.7
+
+# Audio (optional, for pygame-based features)
+pygame==2.5.2
+
+# HTTP Requests
+requests==2.31.0
+
+# Data Visualization & Analysis
+matplotlib==3.7.2
+seaborn==0.12.2
+scipy==1.11.1
+
